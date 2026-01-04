@@ -133,7 +133,7 @@ int main() {
     fs::create_directories(dir);
 
     // Generate keys
-    std::cout << "\nGenerating keys..." << std::endl;
+    std::cout << "\nGenerating keys" << std::endl;
     Params prm;
     PubKey pk;
     SecKey sk;
@@ -144,7 +144,7 @@ int main() {
     uint64_t a_val = 5;
     uint64_t b_val = 7;
 
-    std::cout << "\nEncrypting values..." << std::endl;
+    std::cout << "\nEncrypting values" << std::endl;
     std::cout << "  a = " << a_val << std::endl;
     std::cout << "  b = " << b_val << " (divisor)" << std::endl;
 

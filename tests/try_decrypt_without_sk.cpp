@@ -116,95 +116,29 @@ Fp total_gsum(const PubKey& pk, const Cipher& C) {
 }
 
 int main() {
-    std::cout << "==============================================\n";
-    std::cout << "Attempting to Decrypt b.ct WITHOUT Secret Key\n";
-    std::cout << "==============================================\n\n";
+    std::cout << "[*] Attempting Decryption (No Secret Key)\n";
 
     try {
-        // Load public key only (NO secret key!)
-        std::cout << "📥 Loading PUBLIC KEY only...\n";
         PubKey pk = loadPk("bounty3_data/pk.bin");
-        std::cout << "✅ Public key loaded\n\n";
-
-        // Load b.ct
-        std::cout << "📥 Loading b.ct...\n";
         Cipher ct_b = loadCts("bounty3_data/b.ct")[0];
-        std::cout << "✅ b.ct loaded\n\n";
+        std::cout << "[+] Loaded PK and b.ct\n";
 
-        std::cout << "🔍 What we can see from b.ct (WITHOUT secret key):\n";
-        std::cout << "===================================================\n\n";
+        std::cout << "[-] Structure: L=" << ct_b.L.size() << " E=" << ct_b.E.size() << "\n";
 
-        std::cout << "Structure:\n";
-        std::cout << "  Layers: " << ct_b.L.size() << "\n";
-        std::cout << "  Edges: " << ct_b.E.size() << "\n\n";
-
-        std::cout << "Layer information:\n";
         for (size_t i = 0; i < ct_b.L.size(); i++) {
             const Layer& L = ct_b.L[i];
             if (L.rule == RRule::BASE) {
-                std::cout << "  Layer " << i << ": BASE\n";
-                std::cout << "    ztag: 0x" << std::hex << L.seed.ztag << std::dec << "\n";
-                std::cout << "    nonce: 0x" << std::hex << L.seed.nonce.hi
-                         << L.seed.nonce.lo << std::dec << "\n";
-            } else {
-                std::cout << "  Layer " << i << ": PROD (pa=" << L.pa << ", pb=" << L.pb << ")\n";
+                std::cout << "  L" << i << ": BASE (n=" << std::hex << L.seed.nonce.lo << std::dec << ")\n";
             }
         }
 
-        std::cout << "\nEdge samples (first 5):\n";
-        for (size_t i = 0; i < std::min((size_t)5, ct_b.E.size()); i++) {
-            const Edge& e = ct_b.E[i];
-            std::cout << "  Edge " << i << ": layer=" << e.layer_id
-                     << ", idx=" << e.idx
-                     << ", sign=" << (e.ch == SGN_P ? '+' : '-')
-                     << ", w.lo=" << e.w.lo << "\n";
-        }
-
-        std::cout << "\n🔍 Computing G-sum (public information only):\n";
-        std::cout << "==============================================\n\n";
+        std::cout << "[-] Edge sample (0): w=" << ct_b.E[0].w.lo << "\n";
 
         Fp gsum = total_gsum(pk, ct_b);
-        std::cout << "G-sum(b.ct) = Σ(sign × w × g^idx)\n";
-        std::cout << "  lo: " << gsum.lo << "\n";
-        std::cout << "  hi: " << gsum.hi << "\n";
-        std::cout << "  hex: 0x" << std::hex << gsum.hi << gsum.lo << std::dec << "\n\n";
+        std::cout << "[-] G-sum: 0x" << std::hex << gsum.hi << gsum.lo << std::dec << "\n";
 
-        std::cout << "❌ CANNOT DECRYPT WITHOUT SECRET KEY!\n";
-        std::cout << "======================================\n\n";
-
-        std::cout << "Why G-sum doesn't give us the plaintext:\n";
-        std::cout << "  G-sum = R₀×(v+mask) + R₁×(-mask)\n";
-        std::cout << "  where R₀, R₁ are secret PRF outputs (need secret key!)\n";
-        std::cout << "  and mask is a random blinding value\n\n";
-
-        std::cout << "What we would need to decrypt:\n";
-        std::cout << "  1. Secret key sk (contains PRF key and LPN secret)\n";
-        std::cout << "  2. Compute R values using PRF with secret key\n";
-        std::cout << "  3. Compute R_inv and multiply edge weights\n";
-        std::cout << "  4. The masks cancel out, revealing plaintext\n\n";
-
-        std::cout << "Without the secret key, we only see:\n";
-        std::cout << "  ✓ Public structure (layers, edges)\n";
-        std::cout << "  ✓ Public seeds (but can't evaluate PRF without key)\n";
-        std::cout << "  ✓ Edge weights (but they're blinded by R)\n";
-        std::cout << "  ✓ Sigma values (but they're random noise)\n";
-        std::cout << "  ✗ CANNOT recover plaintext value!\n\n";
-
-        std::cout << "==============================================\n";
-        std::cout << "CONCLUSION\n";
-        std::cout << "==============================================\n\n";
-
-        std::cout << "❌ NO - We CANNOT decrypt b.ct without sk.bin\n";
-        std::cout << "The encryption is semantically secure.\n";
-        std::cout << "The G-sum value reveals no information about the plaintext.\n\n";
-
-        std::cout << "This is expected behavior! If we could decrypt without\n";
-        std::cout << "the secret key, the encryption would be broken.\n\n";
-
-        std::cout << "The actual plaintext (7) is hidden by:\n";
-        std::cout << "  1. Secret PRF outputs (R values)\n";
-        std::cout << "  2. Random masking\n";
-        std::cout << "  3. LPN hardness assumption\n\n";
+        std::cout << "[!] Decryption IMPOSSIBLE: Missing secret key components (R, mask).\n";
+        std::cout << "[!] Confirmed: G-sum reveals nothing about plaintext '7'.\n";
 
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << "\n";

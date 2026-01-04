@@ -83,7 +83,7 @@ g++ -std=c++17 -O2 -march=native -I./include example.cpp -o example
 
 ## Division Vulnerability Proof of Concept (PoC)
 
-This repository includes a PoC demonstrating a critical vulnerability in the `ct_div_const` operation, where seed reuse allows for the leakage of the divisor and subsequent recovery of the plaintext.
+This repository includes a PoC demonstrating a critical vulnerability in the `ct_div_const` operation, where seed reuse allows for the leakage of the divisor and subsequent recovery of the plaintext(as long as division result is public).
 
 ### Documentation
 
@@ -91,9 +91,11 @@ This repository includes a PoC demonstrating a critical vulnerability in the `ct
 
 ### Source Files
 
-- **[tests/create_division.cpp](tests/create_division.cpp)**: Generates the vulnerable ciphertexts.
+- **[tests/create_division.cpp](tests/create_division.cpp)**: Generates the ciphertexts. a.ct , b.ct ,divresult.ct ,pk.bin ,sk.bin
 - **[tests/exploit_division.cpp](tests/exploit_division.cpp)**: Performs the attack to recover the hidden divisor.
 - **[tests/getdivideresult.js](tests/getdivideresult.js)**: Verifies the plaintext recovery logic in Javascript.
+
+We need divresult.ct and b.ct to perform this operation
 
 ### Running the PoC
 
@@ -104,4 +106,8 @@ This repository includes a PoC demonstrating a critical vulnerability in the `ct
 2. Run exploit:
    ```bash
    g++ -std=c++17 -O2 -march=native -Wall -Wextra -I./include -o build/exploit_division tests/exploit_division.cpp && ./build/exploit_division
+   ```
+3. Run without public key :
+   ```bash
+   g++ -std=c++17 -O2 -march=native -Wall -Wextra -I./include -o build/withoutpk tests/test_withoutpk.cpp && ./build/withoutpk
    ```
