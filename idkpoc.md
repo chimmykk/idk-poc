@@ -18,10 +18,10 @@ The `ct_scale` function clones the entire ciphertext structure and only multipli
 Because the structure and seeds are identical, the random component **R** for each layer is the same in both the original `a.ct` and the result `divresult.ct`.
 
 1. **Original weight**: w_i = r_i \* R
-2. **Divided weight**: w'\_i = (r*i * inv(k)) \_ R
+2. **Divided weight**: w'\_i = (r_i _ inv(k)) _ R
 
 An attacker can compute the ratio:
-**Ratio = w*i / w'\_i = (r_i * R) / (r*i * inv(k) \* R) = 1 / inv(k) = k**
+**Ratio = w_i / w'\_i = (r_i _ R) / (r_i _ inv(k) \* R) = 1 / inv(k) = k**
 
 By extracting the "G-sums" (which represent R \* v) from the public coefficients and exponents, the divisor **k** is leaked instantly.
 
@@ -54,6 +54,12 @@ const divResult = 5270498306774157605n;
 const recovered = (divResult * divisor) % p;
 console.log("Recovered dividend:", recovered.toString()); // Output: 5
 ```
+
+### Source Files
+
+- **[tests/create_division.cpp](tests/create_division.cpp)**: Generates the vulnerable ciphertexts.
+- **[tests/exploit_division.cpp](tests/exploit_division.cpp)**: Performs the attack to recover the hidden divisor.
+- **[tests/getdivideresult.js](tests/getdivideresult.js)**: Verifies the plaintext recovery logic in Javascript.
 
 ## Conclusion
 

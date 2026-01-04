@@ -4,37 +4,39 @@
   <img src="https://img.shields.io/badge/C%2B%2B-17-blue?style=flat-square">
   <img src="https://img.shields.io/badge/License-GPL-green?style=flat-square">
 <hr/>
-proof of concept implementation of pvac-hfhe, which is based on the assumption of binary parity for learning with noise and arithmetic on a 127-bit prime field. 
+proof of concept implementation of pvac-hfhe, which is based on the assumption of binary parity for learning with noise and arithmetic on a 127-bit prime field.
 
 we rely on a syndrome graph constructed from a dense random k-uniform hypergraph, and the choice of parameters is based on results on threshold behavior and fractional colorability of random hypergraphs from the works of the moscow institute of physics and technology (MIPT), this is the very first implementation of the beginning of 2024 in its original form.
 
 ps: look at the attachments.
 
-
 ## info
 
 ### requirements
 
-| requirement | ver |
-|-------------|---------|
-| c++ stand | C++17 or later |
-| compiler | GCC 9+, Clang 10+, MSVC 2019+ |
-| cpu | x86-64 with PCLMUL (recommended) |
+| requirement | ver                              |
+| ----------- | -------------------------------- |
+| c++ stand   | C++17 or later                   |
+| compiler    | GCC 9+, Clang 10+, MSVC 2019+    |
+| cpu         | x86-64 with PCLMUL (recommended) |
 
-### installation 
+### installation
 
 ```bash
 git clone https://github.com/octra-labs/pvac_hfhe_cpp.git
 cd pvac-hfhe-cpp
 ```
+
 ```cpp
 #include <pvac/pvac.hpp>
 ```
+
 build and run:
+
 ```bash
 make test # 42 tests
 make examples # usage examples
-make test-prf 
+make test-prf
 make test-sigma
 make test-depth
 make test-ct
@@ -42,6 +44,7 @@ make test-hg
 ```
 
 ### example
+
 ```cpp
 #include <iostream>
 #include <pvac/pvac.hpp>
@@ -77,3 +80,28 @@ int main() {
 g++ -std=c++17 -O2 -march=native -I./include example.cpp -o example
 ./example
 ```
+
+## Division Vulnerability Proof of Concept (PoC)
+
+This repository includes a PoC demonstrating a critical vulnerability in the `ct_div_const` operation, where seed reuse allows for the leakage of the divisor and subsequent recovery of the plaintext.
+
+### Documentation
+
+- **[idkpoc.md](idkpoc.md)**: Detailed explanation of the vulnerability and attack mechanics.
+
+### Source Files
+
+- **[tests/create_division.cpp](tests/create_division.cpp)**: Generates the vulnerable ciphertexts.
+- **[tests/exploit_division.cpp](tests/exploit_division.cpp)**: Performs the attack to recover the hidden divisor.
+- **[tests/getdivideresult.js](tests/getdivideresult.js)**: Verifies the plaintext recovery logic in Javascript.
+
+### Running the PoC
+
+1. Generate data:
+   ```bash
+   mkdir -p build && g++ -std=c++17 -O2 -march=native -Wall -Wextra -I./include -o build/create_division tests/create_division.cpp && ./build/create_division
+   ```
+2. Run exploit:
+   ```bash
+   g++ -std=c++17 -O2 -march=native -Wall -Wextra -I./include -o build/exploit_division tests/exploit_division.cpp && ./build/exploit_division
+   ```
